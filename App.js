@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CalendarScreen from './screens/CalendarScreen';
 import AddScreen from './screens/AddScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import TasksScreen from './screens/TasksScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
         <Stack.Screen name="Calendar" component={CalendarScreen} />
         <Stack.Screen name="Add" component={AddScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Tasks" component={TasksScreen} />
       </Stack.Navigator>
       <StatusBar style="auto" />
     </NavigationContainer>
