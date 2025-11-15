@@ -37,7 +37,7 @@ export default function CalendarScreen({ navigation }) {
       </View>
       <Footer
         onHomePress={() => navigation.navigate('Calendar')}
-        onAddPress={() => navigation.navigate('Add')}
+        onAddPress={() => navigation.navigate('Add', { date: selected, category })}
         onSettingsPress={() => navigation.navigate('Settings')}
       />
     </View>

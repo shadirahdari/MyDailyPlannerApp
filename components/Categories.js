@@ -4,7 +4,7 @@ import theme from './theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from './Categories.styles';
 
-const DEFAULT_CATEGORIES = [
+export const DEFAULT_CATEGORIES = [
   { key: 'sport', label: 'Sport', icon: 'directions-run' },
   { key: 'cooking', label: 'Cooking', icon: 'restaurant' },
   { key: 'cleaning', label: 'Cleaning', icon: 'cleaning-services' },
@@ -20,10 +20,16 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {categories.map((c) => {
           const selected = selectedCategory === c.key;
+          const selectedColor = (theme.categoryColors && theme.categoryColors[c.key]) || theme.primary;
           return (
             <TouchableOpacity
               key={c.key}
-              style={[styles.chip, selected ? styles.chipSelected : null]}
+              style={[
+                styles.chip,
+                selected
+                  ? { backgroundColor: selectedColor, borderColor: selectedColor }
+                  : null,
+              ]}
               onPress={() => onSelectCategory && onSelectCategory(c.key)}
             >
               <MaterialIcons name={c.icon} size={18} color={selected ? '#fff' : theme.primary} />
