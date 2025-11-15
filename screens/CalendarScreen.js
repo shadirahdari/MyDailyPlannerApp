@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+import styles from './CalendarScreen.styles';
 import Calendar from '../components/Calendar';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -43,10 +44,3 @@ export default function CalendarScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.backgroundLight },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 12 },
-  card: { width: '100%', maxWidth: 720 },
-  selectionBar: { padding: 16, borderTopWidth: 1, borderTopColor: '#eee', backgroundColor: theme.card },
-  selectionText: { fontSize: 16, color: theme.darkText },
-});

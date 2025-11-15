@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text, SafeAreaView, Platform } from 'react-native';
+import { View, TouchableOpacity, Text, SafeAreaView, Platform } from 'react-native';
+import styles from './Footer.styles';
 import { MaterialIcons } from '@expo/vector-icons';
 import theme from './theme';
 
@@ -31,10 +32,4 @@ export default function Footer({
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { borderTopWidth: 1 },
-  container: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 8 },
-  button: { alignItems: 'center', width: 80 },
-  centerButton: { alignItems: 'center', justifyContent: 'center' },
-  label: { fontSize: 12, marginTop: 2 },
-});
+
