@@ -1,13 +1,47 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
-export default function Header({ title = 'My Daily Planner', subtitle }) {
+export default function Header({
+  title = 'My Daily Planner',
+  subtitle,
+  backgroundColor = '#fff',
+  titleColor = '#111',
+  logo, // optional image uri string
+  leftIcon = 'menu',
+  onLeftPress,
+  rightIcon = null,
+  onRightPress,
+}) {
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.title}>{title}</Text>
+    <SafeAreaView style={[styles.safe, { backgroundColor }]}>
+      <View style={[styles.container, { backgroundColor }]}>
+        <View style={styles.side}>
+          {onLeftPress ? (
+            <TouchableOpacity onPress={onLeftPress} style={styles.iconButton}>
+              <MaterialIcons name={leftIcon} size={24} color={titleColor} />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.iconSpacer} />
+          )}
+        </View>
+
+        <View style={styles.center}>
+          <View style={styles.titleRow}>
+            {logo ? <Image source={{ uri: logo }} style={styles.logo} /> : null}
+            <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>{title}</Text>
+          </View>
           {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
+
+        <View style={styles.side}>
+          {rightIcon && onRightPress ? (
+            <TouchableOpacity onPress={onRightPress} style={styles.iconButton}>
+              <MaterialIcons name={rightIcon} size={24} color={titleColor} />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.iconSpacer} />
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -16,7 +50,13 @@ export default function Header({ title = 'My Daily Planner', subtitle }) {
 
 const styles = StyleSheet.create({
   safe: { backgroundColor: '#fff' },
-  container: { paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee', backgroundColor: '#fff' },
-  title: { fontSize: 20, fontWeight: '700', color: '#111' },
-  subtitle: { marginTop: 2, fontSize: 13, color: '#666' },
+  container: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  side: { width: 48, alignItems: 'center', justifyContent: 'center' },
+  iconButton: { padding: 6 },
+  iconSpacer: { width: 24 },
+  center: { flex: 1, alignItems: 'center' },
+  titleRow: { flexDirection: 'row', alignItems: 'center' },
+  logo: { width: 28, height: 28, marginRight: 8, borderRadius: 6, backgroundColor: '#eee' },
+  title: { fontSize: 18, fontWeight: '700' },
+  subtitle: { marginTop: 2, fontSize: 12, color: '#666' },
 });
