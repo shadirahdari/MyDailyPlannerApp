@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import styles from './CalendarScreen.styles';
 import Calendar from '../components/Calendar';
@@ -10,6 +10,14 @@ import theme from '../components/theme';
 export default function CalendarScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
   const [category, setCategory] = useState(null);
+  const [refreshVersion, setRefreshVersion] = useState(0);
+
+  useEffect(() => {
+    const unsub = navigation.addListener('focus', () => {
+      setRefreshVersion((v) => v + 1);
+    });
+    return unsub;
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -24,7 +32,8 @@ export default function CalendarScreen({ navigation }) {
 
       <View style={styles.content}>
         <View style={styles.card}>
-          <Calendar initialDate={new Date()} selectedDate={selected} onSelectDate={setSelected} />
+          <Calendar initialDate={new Date()} selectedDate={selected} onSelectDate={setSelected} refreshTrigger={refreshVersion} />
+          {/* pass refresh trigger so calendar reloads tasks when screen regains focus */}
           <Categories selectedCategory={category} onSelectCategory={setCategory} />
         </View>
       </View>
@@ -34,7 +43,19 @@ export default function CalendarScreen({ navigation }) {
           {selected ? `Selected: ${selected.toDateString()}` : 'No date selected'}
         </Text>
         <Text style={[styles.selectionText, { marginTop: 6 }]}>Category: {category ? category : 'None'}</Text>
-      </View>
+            <View style={{ marginTop: 10 }}>
+              <TouchableOpacity
+                onPress={() => {
+                  if (!selected) return;
+                  const key = `${selected.getFullYear()}-${String(selected.getMonth() + 1).padStart(2, '0')}-${String(selected.getDate()).padStart(2, '0')}`;
+                  navigation.navigate('DayTasks', { date: key });
+                }}
+                style={{ alignSelf: 'flex-start', paddingVertical: 8, paddingHorizontal: 12, backgroundColor: theme.primary, borderRadius: 8 }}
+              >
+                <Text style={{ color: '#fff', fontWeight: '600' }}>{selected ? 'View tasks for selected date' : 'Select a date to view tasks'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
       <Footer
         onHomePress={() => navigation.navigate('Calendar')}
         onAddPress={() => navigation.navigate('Add', { date: selected, category })}

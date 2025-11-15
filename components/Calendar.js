@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from './theme';
 import styles from './Calendar.styles';
 
@@ -16,7 +17,7 @@ function getMonthData(year, month) {
   return cells;
 }
 
-export default function Calendar({ initialDate, selectedDate: selectedProp, onSelectDate }) {
+export default function Calendar({ initialDate, selectedDate: selectedProp, onSelectDate, refreshTrigger }) {
   const today = new Date();
   const initial = initialDate ? new Date(initialDate.getFullYear(), initialDate.getMonth(), 1) : new Date(today.getFullYear(), today.getMonth(), 1);
   const [viewDate, setViewDate] = useState(initial);
@@ -27,6 +28,7 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
   }, [selectedProp]);
 
   const cells = useMemo(() => getMonthData(viewDate.getFullYear(), viewDate.getMonth()), [viewDate]);
+  const [tasksMap, setTasksMap] = useState({});
 
   function prevMonth() {
     setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -40,6 +42,31 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
     setSelected(date);
     onSelectDate && onSelectDate(date);
   }
+
+  function formatDateKey(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  async function loadTasks() {
+    try {
+      const raw = await AsyncStorage.getItem('tasks');
+      const tasks = raw ? JSON.parse(raw) : [];
+      const map = {};
+      tasks.forEach((t) => {
+        // expect t.date in YYYY-MM-DD
+        const key = t.date;
+        if (!map[key]) map[key] = [];
+        map[key].push(t);
+      });
+      setTasksMap(map);
+    } catch (err) {
+      console.error('Calendar loadTasks', err);
+    }
+  }
+
+  useEffect(() => {
+    loadTasks();
+  }, [viewDate, refreshTrigger]);
 
   function renderDay({ item, index }) {
     if (!item) return <View style={styles.dayCell} key={`blank-${index}`} />;
@@ -59,6 +86,21 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
       <TouchableOpacity key={item.toISOString()} style={[styles.dayCell, isSelected && styles.selectedDay]} onPress={() => handlePress(item)}>
         <Text style={[styles.dayText, isToday && styles.todayText]}>{item.getDate()}</Text>
         {isSelected ? <View style={styles.selectedDot} /> : null}
+        {/* task dots */}
+        {(() => {
+          const key = formatDateKey(item);
+          const tasks = tasksMap[key];
+          if (!tasks || tasks.length === 0) return null;
+          // show up to 3 colored dots based on category
+          return (
+            <View style={styles.taskDotsRow}>
+              {tasks.slice(0, 3).map((t) => {
+                const color = (theme.categoryColors && theme.categoryColors[t.category]) || theme.primary;
+                return <View key={t.id} style={[styles.taskDot, { backgroundColor: color }]} />;
+              })}
+            </View>
+          );
+        })()}
       </TouchableOpacity>
     );
   }

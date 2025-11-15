@@ -15,4 +15,6 @@ export default StyleSheet.create({
   todayText: { color: theme.secondary, fontWeight: '700' },
   selectedDay: { backgroundColor: 'rgba(74,144,226,0.12)', borderRadius: 8 },
   selectedDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: theme.primary, marginTop: 4 },
+  taskDotsRow: { flexDirection: 'row', marginTop: 6 },
+  taskDot: { width: 6, height: 6, borderRadius: 3, marginHorizontal: 2 },
 });
