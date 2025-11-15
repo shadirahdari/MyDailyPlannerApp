@@ -1,12 +1,13 @@
 import React from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Image, Platform } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import theme from './theme';
 
 export default function Header({
   title = 'My Daily Planner',
   subtitle,
-  backgroundColor = '#fff',
-  titleColor = '#111',
+  backgroundColor = theme.primary,
+  titleColor = '#fff',
   logo, // optional image uri string
   leftIcon = 'menu',
   onLeftPress,
@@ -14,8 +15,8 @@ export default function Header({
   onRightPress,
 }) {
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor }]}>
-      <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.safe, { backgroundColor }]} {...(Platform.OS === 'web' ? { className: 'app-header' } : {})}>
+      <View style={[styles.container, { backgroundColor }]} {...(Platform.OS === 'web' ? { className: 'app-header' } : {})}>
         <View style={styles.side}>
           {onLeftPress ? (
             <TouchableOpacity onPress={onLeftPress} style={styles.iconButton}>
@@ -28,10 +29,10 @@ export default function Header({
 
         <View style={styles.center}>
           <View style={styles.titleRow}>
-            {logo ? <Image source={{ uri: logo }} style={styles.logo} /> : null}
+              {logo ? <Image source={{ uri: logo }} style={styles.logo} /> : null}
             <Text style={[styles.title, { color: titleColor }]} numberOfLines={1}>{title}</Text>
           </View>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          {subtitle ? <Text style={[styles.subtitle, { color: 'rgba(255,255,255,0.9)' }]}>{subtitle}</Text> : null}
         </View>
 
         <View style={styles.side}>

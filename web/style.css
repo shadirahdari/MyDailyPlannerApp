@@ -1,0 +1,38 @@
+:root{
+  --primary:#4A90E2;
+  --secondary:#7ED321;
+  --accent:#F5A623;
+  --bg-light:#F7F9FC;
+  --dark-text:#1C1C1E;
+  --light-text:#6D6D72;
+  --card:#FFFFFF;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: var(--bg-light);
+  color: var(--dark-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.app-header {
+  background: var(--primary);
+  color: #fff;
+}
+
+.app-footer {
+  background: var(--primary);
+  color: #fff;
+}
+
+.calendar-card {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(28,28,30,0.06);
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+}
