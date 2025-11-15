@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, TouchableOpacity } from 'react-native';
 import styles from './CalendarScreen.styles';
 import Calendar from '../components/Calendar';
 import Header from '../components/Header';

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 import theme from './theme';
 import styles from './Calendar.styles';
 
@@ -29,6 +30,7 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
 
   const cells = useMemo(() => getMonthData(viewDate.getFullYear(), viewDate.getMonth()), [viewDate]);
   const [tasksMap, setTasksMap] = useState({});
+  const navigation = useNavigation();
 
   function prevMonth() {
     setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -39,6 +41,14 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
   }
 
   function handlePress(date) {
+    const key = formatDateKey(date);
+    const tasksForDate = tasksMap[key];
+    if (tasksForDate && tasksForDate.length > 0) {
+      // open day view when tasks exist
+      navigation.navigate('DayTasks', { date: key });
+      return;
+    }
+
     setSelected(date);
     onSelectDate && onSelectDate(date);
   }
