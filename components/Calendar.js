@@ -31,6 +31,7 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
   const cells = useMemo(() => getMonthData(viewDate.getFullYear(), viewDate.getMonth()), [viewDate]);
   const [tasksMap, setTasksMap] = useState({});
   const navigation = useNavigation();
+  const [dayViewOpen, setDayViewOpen] = useState(false);
 
   function prevMonth() {
     setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
@@ -42,15 +43,10 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
 
   function handlePress(date) {
     const key = formatDateKey(date);
-    const tasksForDate = tasksMap[key];
-    if (tasksForDate && tasksForDate.length > 0) {
-      // open day view when tasks exist
-      navigation.navigate('DayTasks', { date: key });
-      return;
-    }
-
-    setSelected(date);
+    // notify parent (e.g. CalendarToggle) so it can close its modal first
     onSelectDate && onSelectDate(date);
+    // then open the day view so it appears in front
+    navigation.navigate('DayTasks', { date: key });
   }
 
   function formatDateKey(d) {
@@ -77,6 +73,30 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
   useEffect(() => {
     loadTasks();
   }, [viewDate, refreshTrigger]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const v = await AsyncStorage.getItem('dayViewOpen');
+        if (mounted) setDayViewOpen(!!v);
+      } catch (e) {
+        if (mounted) setDayViewOpen(false);
+      }
+    })();
+
+    const sub = setInterval(async () => {
+      try {
+        const v = await AsyncStorage.getItem('dayViewOpen');
+        if (mounted) setDayViewOpen(!!v);
+      } catch (e) {}
+    }, 700);
+
+    return () => {
+      mounted = false;
+      clearInterval(sub);
+    };
+  }, []);
 
   function renderDay({ item, index }) {
     if (!item) return <View style={styles.dayCell} key={`blank-${index}`} />;
@@ -116,7 +136,7 @@ export default function Calendar({ initialDate, selectedDate: selectedProp, onSe
   }
 
   return (
-    <View style={styles.container} {...(Platform.OS === 'web' ? { className: 'calendar-card' } : {})}>
+    <View style={[styles.container, dayViewOpen ? { opacity: 0.6 } : null]} pointerEvents={dayViewOpen ? 'none' : 'auto'} {...(Platform.OS === 'web' ? { className: 'calendar-card' } : {})}>
       <View style={styles.header}>
         <TouchableOpacity onPress={prevMonth} style={styles.navButton}>
           <Text style={[styles.navText, { color: theme.card }]}>‹</Text>
