@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback, Platform } from 'react-native';
 import theme from './theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from './Categories.styles';
@@ -19,10 +19,32 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
 
   const current = categories.find((c) => c.key === selectedCategory) || categories[0];
   const currentColor = (theme.categoryColors && theme.categoryColors[current.key]) || theme.primary;
+  const [hoverKey, setHoverKey] = useState(null);
 
   function handleSelect(key) {
     onSelectCategory && onSelectCategory(key);
     setExpanded(false);
+  }
+
+  function hexToRgb(hex) {
+    const h = hex.replace('#', '');
+    const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+  }
+
+  function isDark(hex) {
+    try {
+      const { r, g, b } = hexToRgb(hex);
+      // relative luminance
+      const [R, G, B] = [r, g, b].map((v) => {
+        const s = v / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      });
+      const lum = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+      return lum < 0.5;
+    } catch (e) {
+      return false;
+    }
   }
 
   return (
@@ -34,25 +56,43 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
 
       {/* Expandable horizontal list */}
       {expanded ? (
-        <View style={styles.expandedList}>
-          <ScrollView style={styles.expandedScroll} contentContainerStyle={styles.expandedContent} showsVerticalScrollIndicator={true}>
-            {categories.map((c) => {
-              const color = (theme.categoryColors && theme.categoryColors[c.key]) || theme.primary;
-              const selected = selectedCategory === c.key;
-              return (
-                <TouchableOpacity
-                  key={c.key}
-                  style={[styles.row, selected ? { backgroundColor: color } : null]}
-                  onPress={() => handleSelect(c.key)}
-                >
-                  <View style={[styles.colorDot, { backgroundColor: color }]} />
-                  <MaterialIcons name={c.icon} size={18} color={selected ? '#fff' : theme.darkText} />
-                  <Text style={[styles.rowLabel, selected ? styles.rowLabelSelected : null]}>{c.label}</Text>
+        <Modal animationType="fade" transparent={true} visible={expanded} onRequestClose={() => setExpanded(false)}>
+          <TouchableWithoutFeedback onPress={() => setExpanded(false)}>
+            <View style={styles.modalBackdrop} />
+          </TouchableWithoutFeedback>
+
+          <View style={styles.modalContainer} pointerEvents="box-none">
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <TouchableOpacity onPress={() => setExpanded(false)} style={styles.modalCloseButton}>
+                  <MaterialIcons name="close" size={18} color={theme.darkText} />
                 </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+              </View>
+
+              <View style={styles.expandedList}>
+                <ScrollView style={styles.expandedScroll} contentContainerStyle={styles.expandedContent} showsVerticalScrollIndicator={true}>
+                  {categories.map((c) => {
+                    const color = (theme.categoryColors && theme.categoryColors[c.key]) || theme.primary;
+                    const selected = selectedCategory === c.key;
+                    const textColor = isDark(color) ? '#fff' : '#111';
+                    return (
+                      <TouchableOpacity
+                        key={c.key}
+                        style={[styles.row, { backgroundColor: color }]}
+                        onPress={() => handleSelect(c.key)}
+                        onMouseEnter={() => Platform.OS === 'web' && setHoverKey(c.key)}
+                        onMouseLeave={() => Platform.OS === 'web' && setHoverKey(null)}
+                      >
+                        <MaterialIcons name={c.icon} size={18} color={textColor} />
+                        <Text style={[styles.rowLabel, { color: textColor }]}>{c.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </Modal>
       ) : null}
     </View>
   );
