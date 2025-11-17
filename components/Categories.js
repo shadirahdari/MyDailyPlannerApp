@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import theme from './theme';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -15,29 +15,45 @@ export const DEFAULT_CATEGORIES = [
 ];
 
 export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCategory, onSelectCategory }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const current = categories.find((c) => c.key === selectedCategory) || categories[0];
+  const currentColor = (theme.categoryColors && theme.categoryColors[current.key]) || theme.primary;
+
+  function handleSelect(key) {
+    onSelectCategory && onSelectCategory(key);
+    setExpanded(false);
+  }
+
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-        {categories.map((c) => {
-          const selected = selectedCategory === c.key;
-          const selectedColor = (theme.categoryColors && theme.categoryColors[c.key]) || theme.primary;
-          return (
-            <TouchableOpacity
-              key={c.key}
-              style={[
-                styles.chip,
-                selected
-                  ? { backgroundColor: selectedColor, borderColor: selectedColor }
-                  : null,
-              ]}
-              onPress={() => onSelectCategory && onSelectCategory(c.key)}
-            >
-              <MaterialIcons name={c.icon} size={18} color={selected ? '#fff' : theme.primary} />
-              <Text style={[styles.label, selected ? styles.labelSelected : null]}>{c.label}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      {/* Compact button showing current category color/icon */}
+      <TouchableOpacity style={[styles.compactButton, { backgroundColor: currentColor }]} onPress={() => setExpanded((v) => !v)}>
+        <MaterialIcons name={current.icon} size={20} color="#fff" />
+      </TouchableOpacity>
+
+      {/* Expandable horizontal list */}
+      {expanded ? (
+        <View style={styles.expandedList}>
+          <ScrollView style={styles.expandedScroll} contentContainerStyle={styles.expandedContent} showsVerticalScrollIndicator={true}>
+            {categories.map((c) => {
+              const color = (theme.categoryColors && theme.categoryColors[c.key]) || theme.primary;
+              const selected = selectedCategory === c.key;
+              return (
+                <TouchableOpacity
+                  key={c.key}
+                  style={[styles.row, selected ? { backgroundColor: color } : null]}
+                  onPress={() => handleSelect(c.key)}
+                >
+                  <View style={[styles.colorDot, { backgroundColor: color }]} />
+                  <MaterialIcons name={c.icon} size={18} color={selected ? '#fff' : theme.darkText} />
+                  <Text style={[styles.rowLabel, selected ? styles.rowLabelSelected : null]}>{c.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      ) : null}
     </View>
   );
 }

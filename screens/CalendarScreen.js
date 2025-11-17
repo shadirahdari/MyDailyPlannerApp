@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, Platform, TouchableOpacity, Dimensions } from 'react-native';
 import styles from './CalendarScreen.styles';
 import Calendar from '../components/Calendar';
 import Header from '../components/Header';
+import CalendarToggle from '../components/CalendarToggle';
 import Footer from '../components/Footer';
 import Categories from '../components/Categories';
 import theme from '../components/theme';
@@ -11,6 +12,16 @@ export default function CalendarScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
   const [category, setCategory] = useState(null);
   const [refreshVersion, setRefreshVersion] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+
+  useEffect(() => {
+    const handler = ({ window }) => setWindowWidth(window.width);
+    const sub = Dimensions.addEventListener ? Dimensions.addEventListener('change', handler) : null;
+    return () => {
+      if (sub && sub.remove) sub.remove();
+      else if (Dimensions.removeEventListener) Dimensions.removeEventListener('change', handler);
+    };
+  }, []);
 
   useEffect(() => {
     const unsub = navigation.addListener('focus', () => {
@@ -27,12 +38,20 @@ export default function CalendarScreen({ navigation }) {
         onLeftPress={() => navigation.navigate('Settings')}
         rightIcon="settings"
         onRightPress={() => navigation.navigate('Settings')}
+        rightComponent={<CalendarToggle onSelectDate={setSelected} />}
         logo={Platform.OS === 'web' ? require('../assets/logo.svg') : require('../assets/logoData').default}
       />
 
       <View style={styles.content}>
         <View style={styles.card}>
-          <Calendar initialDate={new Date()} selectedDate={selected} onSelectDate={setSelected} refreshTrigger={refreshVersion} />
+          {/* Show inline calendar only on larger screens; mobile/tablet will use header toggle modal */}
+          {windowWidth >= 520 ? (
+            <Calendar initialDate={new Date()} selectedDate={selected} onSelectDate={setSelected} refreshTrigger={refreshVersion} />
+          ) : (
+            <View style={{ paddingVertical: 12 }}>
+              <Text style={{ color: '#666' }}>{selected ? selected.toDateString() : 'Tap the calendar icon to pick a date'}</Text>
+            </View>
+          )}
           {/* pass refresh trigger so calendar reloads tasks when screen regains focus */}
           <Categories selectedCategory={category} onSelectCategory={setCategory} />
         </View>

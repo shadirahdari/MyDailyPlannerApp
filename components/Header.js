@@ -14,6 +14,7 @@ export default function Header({
   onLeftPress,
   rightIcon = null,
   onRightPress,
+  rightComponent = null,
 }) {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor }]} {...(Platform.OS === 'web' ? { className: 'app-header' } : {})}>
@@ -37,7 +38,9 @@ export default function Header({
         </View>
 
         <View style={styles.side}>
-          {rightIcon && onRightPress ? (
+          {rightComponent ? (
+            rightComponent
+          ) : rightIcon && onRightPress ? (
             <TouchableOpacity onPress={onRightPress} style={styles.iconButton}>
               <MaterialIcons name={rightIcon} size={24} color={titleColor} />
             </TouchableOpacity>
