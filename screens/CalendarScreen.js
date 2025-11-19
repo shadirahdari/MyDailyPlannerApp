@@ -7,6 +7,7 @@ import CalendarToggle from '../components/CalendarToggle';
 import Footer from '../components/Footer';
 import Categories from '../components/Categories';
 import theme from '../components/theme';
+import WeekDaysStrip from '../components/WeekDaysStrip';
 
 export default function CalendarScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
@@ -41,6 +42,8 @@ export default function CalendarScreen({ navigation }) {
         rightComponent={<CalendarToggle onSelectDate={setSelected} />}
         logo={Platform.OS === 'web' ? require('../assets/logo.svg') : require('../assets/logoData').default}
       />
+
+      <WeekDaysStrip startDate={new Date()} onSelect={(d) => setSelected(new Date(d.iso))} />
 
       <View style={styles.content}>
         <View style={styles.card}>
