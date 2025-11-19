@@ -3,7 +3,6 @@ import { View, Text, Platform, TouchableOpacity, Dimensions } from 'react-native
 import styles from './CalendarScreen.styles';
 import Calendar from '../components/Calendar';
 import Header from '../components/Header';
-import CalendarToggle from '../components/CalendarToggle';
 import Footer from '../components/Footer';
 import Categories from '../components/Categories';
 import theme from '../components/theme';
@@ -39,7 +38,6 @@ export default function CalendarScreen({ navigation }) {
         onLeftPress={() => navigation.navigate('Settings')}
         rightIcon="settings"
         onRightPress={() => navigation.navigate('Settings')}
-        rightComponent={<CalendarToggle onSelectDate={setSelected} />}
         logo={Platform.OS === 'web' ? require('../assets/logo.svg') : require('../assets/logoData').default}
       />
 
@@ -82,6 +80,7 @@ export default function CalendarScreen({ navigation }) {
         onHomePress={() => navigation.navigate('Calendar')}
         onAddPress={() => navigation.navigate('Add', { date: selected, category })}
         onSettingsPress={() => navigation.navigate('Settings')}
+        onSelectDate={(d) => setSelected(new Date(d))}
       />
     </View>
   );
