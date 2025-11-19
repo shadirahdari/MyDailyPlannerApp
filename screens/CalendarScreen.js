@@ -54,7 +54,6 @@ export default function CalendarScreen({ navigation }) {
             </View>
           )}
           {/* pass refresh trigger so calendar reloads tasks when screen regains focus */}
-          <Categories selectedCategory={category} onSelectCategory={setCategory} />
         </View>
       </View>
 
@@ -81,6 +80,8 @@ export default function CalendarScreen({ navigation }) {
         onAddPress={() => navigation.navigate('Add', { date: selected, category })}
         onSettingsPress={() => navigation.navigate('Settings')}
         onSelectDate={(d) => setSelected(new Date(d))}
+        selectedCategory={category}
+        onSelectCategory={(k) => setCategory(k)}
       />
     </View>
   );
