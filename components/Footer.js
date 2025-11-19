@@ -22,7 +22,6 @@ export default function Footer({
         <View style={[styles.button, { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }]}>
           <CalendarToggle onSelectDate={onSelectDate} />
           <Categories selectedCategory={selectedCategory} onSelectCategory={onSelectCategory} />
-          <Text style={[styles.label, { color: iconColor, marginLeft: 8 }]}>Calendar</Text>
         </View>
 
         <TouchableOpacity style={styles.centerButton} onPress={onAddPress}>

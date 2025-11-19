@@ -17,7 +17,7 @@ export default function CalendarToggle({ onSelectDate }) {
 
   return (
     <>
-      <TouchableOpacity onPress={() => setVisible(true)} style={{ padding: 10 }}>
+      <TouchableOpacity onPress={() => setVisible((v) => !v)} style={{ padding: 10 }}>
         <MaterialIcons name="calendar-today" size={32} color="#fff" />
       </TouchableOpacity>
 

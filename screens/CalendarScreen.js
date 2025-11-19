@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import Categories from '../components/Categories';
 import theme from '../components/theme';
 import WeekDaysStrip from '../components/WeekDaysStrip';
+import QuickRows from '../components/QuickRows';
 
 export default function CalendarScreen({ navigation }) {
   const [selected, setSelected] = useState(null);
@@ -40,6 +41,8 @@ export default function CalendarScreen({ navigation }) {
         onRightPress={() => navigation.navigate('Settings')}
         logo={Platform.OS === 'web' ? require('../assets/logo.svg') : require('../assets/logoData').default}
       />
+
+      <QuickRows />
 
       <WeekDaysStrip startDate={new Date()} onSelect={(d) => setSelected(new Date(d.iso))} />
 
