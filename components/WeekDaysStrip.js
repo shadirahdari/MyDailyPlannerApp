@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import styles from './WeekDaysStrip.styles';
 import theme from './theme';
@@ -12,13 +12,20 @@ function formatDay(date) {
 }
 
 export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
-  // build 7 days starting from startDate (start of week)
-  const days = useMemo(() => {
-    const d = new Date(startDate);
-    d.setHours(0,0,0,0);
-    // move to sunday of that week
+  // compute week start (Sunday) from a given date
+  function getWeekStart(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
     const offset = d.getDay();
     d.setDate(d.getDate() - offset);
+    return d;
+  }
+
+  const [weekStart, setWeekStart] = useState(() => getWeekStart(startDate));
+
+  // build 7 days starting from weekStart
+  const days = useMemo(() => {
+    const d = new Date(weekStart);
     const arr = [];
     for (let i = 0; i < 7; i++) {
       const dd = new Date(d);
@@ -26,14 +33,43 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
       arr.push(formatDay(dd));
     }
     return arr;
-  }, [startDate]);
+  }, [weekStart]);
 
   const [selectedIso, setSelectedIso] = useState(days[0]?.iso);
+
+  // if the days change and the selected iso isn't present, reset selection
+  useEffect(() => {
+    if (!days.find((x) => x.iso === selectedIso)) {
+      setSelectedIso(days[0]?.iso);
+    }
+  }, [days]);
+
+  function handlePrevWeek() {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() - 7);
+      return d;
+    });
+  }
+
+  function handleNextWeek() {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + 7);
+      return d;
+    });
+  }
 
   function renderItem({ item }) {
     const selected = item.iso === selectedIso;
     return (
-      <TouchableOpacity style={[styles.dayItem, selected && styles.dayItemSelected]} onPress={() => { setSelectedIso(item.iso); onSelect && onSelect(item); }}>
+      <TouchableOpacity
+        style={[styles.dayItem, selected && styles.dayItemSelected]}
+        onPress={() => {
+          setSelectedIso(item.iso);
+          onSelect && onSelect(item);
+        }}
+      >
         <Text style={[styles.dayShort, selected && styles.dayShortSelected]}>{item.short}</Text>
         <View style={[styles.dayCircle, selected && styles.dayCircleSelected]}>
           <Text style={[styles.dayNum, selected && styles.dayNumSelected]}>{item.day}</Text>
@@ -43,7 +79,11 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.containerRow}>
+      <TouchableOpacity style={styles.navButton} onPress={handlePrevWeek}>
+        <Text style={styles.navIcon}>{'‹'}</Text>
+      </TouchableOpacity>
+
       <FlatList
         data={days}
         horizontal
@@ -52,6 +92,10 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
         renderItem={renderItem}
         contentContainerStyle={styles.list}
       />
+
+      <TouchableOpacity style={styles.navButton} onPress={handleNextWeek}>
+        <Text style={styles.navIcon}>{'›'}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
