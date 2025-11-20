@@ -21,4 +21,5 @@ export default StyleSheet.create({
   chipSelected: { backgroundColor: theme.primary, borderColor: 'rgba(0,0,0,0.06)' },
   label: { marginLeft: 8, color: theme.darkText, fontWeight: '600' },
   labelSelected: { color: '#fff' },
+  rowAdd: { marginLeft: 12, paddingLeft: 12, paddingRight: 6, justifyContent: 'center', alignItems: 'center' },
 });

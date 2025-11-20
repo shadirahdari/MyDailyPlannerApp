@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback, Platform } from 'react-native';
+import AddScreen from '../screens/AddScreen';
+import { useNavigation } from '@react-navigation/native';
 import theme from './theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from './Categories.styles';
@@ -16,6 +18,8 @@ export const DEFAULT_CATEGORIES = [
 
 export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCategory, onSelectCategory }) {
   const [expanded, setExpanded] = useState(false);
+  const navigation = useNavigation();
+  const [addingCategory, setAddingCategory] = useState(null);
 
   const current = categories.find((c) => c.key === selectedCategory) || categories[0];
   const currentColor = (theme.categoryColors && theme.categoryColors[current.key]) || theme.primary;
@@ -49,10 +53,14 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
 
   return (
     <View style={styles.container}>
-      {/* Compact button showing current category color/icon */}
-      <TouchableOpacity style={[styles.compactButton, { backgroundColor: currentColor }]} onPress={() => setExpanded((v) => !v)}>
-        <MaterialIcons name={current.icon} size={20} color="#fff" />
-      </TouchableOpacity>
+          {/* Compact button showing current category color with a plus overlay */}
+          <TouchableOpacity
+            style={[styles.compactButton, { backgroundColor: currentColor }]}
+            onPress={() => setExpanded((v) => !v)}
+            accessibilityLabel="Open categories or add new"
+          >
+            <MaterialIcons name="add" size={20} color="#fff" />
+          </TouchableOpacity>
 
       {/* Expandable horizontal list */}
       {expanded ? (
@@ -76,18 +84,41 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
                     const selected = selectedCategory === c.key;
                     const textColor = isDark(color) ? '#fff' : '#111';
                     return (
-                      <TouchableOpacity
+                      <View
                         key={c.key}
                         style={[styles.row, { backgroundColor: color }]}
-                        onPress={() => handleSelect(c.key)}
                         onMouseEnter={() => Platform.OS === 'web' && setHoverKey(c.key)}
                         onMouseLeave={() => Platform.OS === 'web' && setHoverKey(null)}
                       >
-                        <MaterialIcons name={c.icon} size={18} color={textColor} />
-                        <Text style={[styles.rowLabel, { color: textColor }]}>{c.label}</Text>
-                      </TouchableOpacity>
+                        <TouchableOpacity style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }} onPress={() => handleSelect(c.key)}>
+                          <MaterialIcons name={c.icon} size={18} color={textColor} />
+                          <Text style={[styles.rowLabel, { color: textColor }]}>{c.label}</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.rowAdd}
+                          onPress={() => {
+                            // open embedded Add screen as an overlay modal
+                            setAddingCategory(c.key);
+                          }}
+                        >
+                          <MaterialIcons name="add-circle" size={22} color={textColor} />
+                        </TouchableOpacity>
+                      </View>
                     );
                   })}
+                  {/* Embedded Add modal for quick add per category */}
+                  <Modal animationType="slide" transparent={true} visible={!!addingCategory} onRequestClose={() => setAddingCategory(null)}>
+                    <TouchableWithoutFeedback onPress={() => setAddingCategory(null)}>
+                      <View style={styles.modalBackdrop} />
+                    </TouchableWithoutFeedback>
+
+                    <View style={styles.modalContainer} pointerEvents="box-none">
+                      <View style={styles.modalCard}>
+                        <AddScreen initialCategory={addingCategory} onClose={() => setAddingCategory(null)} />
+                      </View>
+                    </View>
+                  </Modal>
                 </ScrollView>
               </View>
             </View>

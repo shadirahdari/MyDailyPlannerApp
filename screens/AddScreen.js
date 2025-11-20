@@ -14,21 +14,22 @@ function formatDate(date) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function AddScreen() {
+export default function AddScreen(props) {
   const navigation = useNavigation();
   const route = useRoute();
   const params = route.params || {};
 
+  // allow embedding: prefer prop `initialCategory` over route params
   const initialDate = params.date ? new Date(params.date) : new Date();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(formatDate(initialDate));
-  const [category, setCategory] = useState(params.category || null);
+  const [category, setCategory] = useState(props.initialCategory || params.category || null);
 
   useEffect(() => {
-    if (params.category) setCategory(params.category);
-  }, [params.category]);
+    if (props.initialCategory) setCategory(props.initialCategory);
+  }, [props.initialCategory]);
 
   async function save() {
     if (!title.trim()) {
@@ -50,7 +51,8 @@ export default function AddScreen() {
       tasks.push(task);
       await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
       Alert.alert('Saved', 'Task saved successfully');
-      navigation.goBack();
+      if (props.onClose) props.onClose();
+      else navigation.goBack();
     } catch (err) {
       console.error('Save error', err);
       Alert.alert('Error', 'Unable to save task');
@@ -90,7 +92,7 @@ export default function AddScreen() {
         <Categories selectedCategory={category} onSelectCategory={setCategory} categories={DEFAULT_CATEGORIES} />
 
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.button} onPress={() => (props.onClose ? props.onClose() : navigation.goBack())}>
             <Text style={{ color: theme.primary }}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.button, styles.buttonPrimary]} onPress={save}>

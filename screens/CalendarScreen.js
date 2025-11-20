@@ -42,9 +42,9 @@ export default function CalendarScreen({ navigation }) {
         logo={Platform.OS === 'web' ? require('../assets/logo.svg') : require('../assets/logoData').default}
       />
 
-      <QuickRows />
-
       <WeekDaysStrip startDate={new Date()} onSelect={(d) => setSelected(new Date(d.iso))} />
+
+      <QuickRows />
 
       <View style={styles.content}>
         <View style={styles.card}>
