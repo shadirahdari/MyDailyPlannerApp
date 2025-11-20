@@ -1,7 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import styles from './WeekDaysStrip.styles';
 import theme from './theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function formatDay(date) {
   return {
@@ -36,6 +38,7 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
   }, [weekStart]);
 
   const [selectedIso, setSelectedIso] = useState(days[0]?.iso);
+  const [moodsMap, setMoodsMap] = useState({});
 
   // if the days change and the selected iso isn't present, reset selection
   useEffect(() => {
@@ -43,6 +46,22 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
       setSelectedIso(days[0]?.iso);
     }
   }, [days]);
+
+  async function loadMoods() {
+    try {
+      const raw = await AsyncStorage.getItem('moods');
+      const map = raw ? JSON.parse(raw) : {};
+      setMoodsMap(map || {});
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadMoods();
+    }, [weekStart])
+  );
 
   function handlePrevWeek() {
     setWeekStart((prev) => {
@@ -60,22 +79,46 @@ export default function WeekDaysStrip({ startDate = new Date(), onSelect }) {
     });
   }
 
+  const navigation = useNavigation();
+
   function renderItem({ item }) {
     const selected = item.iso === selectedIso;
+    const mood = moodsMap[item.iso];
     return (
       <TouchableOpacity
         style={[styles.dayItem, selected && styles.dayItemSelected]}
         onPress={() => {
           setSelectedIso(item.iso);
           onSelect && onSelect(item);
+          try {
+            navigation.navigate('Moods', { dateIso: item.iso });
+          } catch (e) {
+            // navigation might not be available in non-navigated contexts
+          }
         }}
       >
         <Text style={[styles.dayShort, selected && styles.dayShortSelected]}>{item.short}</Text>
         <View style={[styles.dayCircle, selected && styles.dayCircleSelected]}>
-          <Text style={[styles.dayNum, selected && styles.dayNumSelected]}>{item.day}</Text>
+          {mood && mood.mood ? (
+            <Text style={[styles.dayNum, selected && styles.dayNumSelected]}>{getEmojiForMood(mood.mood)}</Text>
+          ) : (
+            <Text style={[styles.dayNum, selected && styles.dayNumSelected]}>{item.day}</Text>
+          )}
         </View>
       </TouchableOpacity>
     );
+  }
+
+  function getEmojiForMood(key) {
+    const map = {
+      bad: '😞',
+      poor: '😕',
+      neutral: '😐',
+      good: '🙂',
+      great: '😃',
+      excellent: '🤩',
+    };
+    return map[key] || '•';
   }
 
   return (
