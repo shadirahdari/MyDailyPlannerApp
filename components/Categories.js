@@ -1,20 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal, TouchableWithoutFeedback, Platform } from 'react-native';
-import AddScreen from '../screens/AddScreen';
 import { useNavigation } from '@react-navigation/native';
 import theme from './theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import styles from './Categories.styles';
-
-export const DEFAULT_CATEGORIES = [
-  { key: 'sport', label: 'Sport', icon: 'directions-run' },
-  { key: 'cooking', label: 'Cooking', icon: 'restaurant' },
-  { key: 'cleaning', label: 'Cleaning', icon: 'cleaning-services' },
-  { key: 'shopping', label: 'Shopping', icon: 'shopping-cart' },
-  { key: 'studying', label: 'Studying', icon: 'menu-book' },
-  { key: 'relaxing', label: 'Relaxing', icon: 'self-improvement' },
-  { key: 'musics', label: 'Musics', icon: 'music-note' },
-];
+import DEFAULT_CATEGORIES from './defaultCategories';
 
 export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCategory, onSelectCategory }) {
   const [expanded, setExpanded] = useState(false);
@@ -98,8 +88,8 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
                         <TouchableOpacity
                           style={styles.rowAdd}
                           onPress={() => {
-                            // open embedded Add screen as an overlay modal
-                            setAddingCategory(c.key);
+                            // navigate to full Add screen with category pre-filled
+                            navigation.navigate('Add', { category: c.key });
                           }}
                         >
                           <MaterialIcons name="add-circle" size={22} color={textColor} />
@@ -107,18 +97,7 @@ export default function Categories({ categories = DEFAULT_CATEGORIES, selectedCa
                       </View>
                     );
                   })}
-                  {/* Embedded Add modal for quick add per category */}
-                  <Modal animationType="slide" transparent={true} visible={!!addingCategory} onRequestClose={() => setAddingCategory(null)}>
-                    <TouchableWithoutFeedback onPress={() => setAddingCategory(null)}>
-                      <View style={styles.modalBackdrop} />
-                    </TouchableWithoutFeedback>
-
-                    <View style={styles.modalContainer} pointerEvents="box-none">
-                      <View style={styles.modalCard}>
-                        <AddScreen initialCategory={addingCategory} onClose={() => setAddingCategory(null)} />
-                      </View>
-                    </View>
-                  </Modal>
+                  {/* Removed embedded Add modal to avoid circular import; navigation to Add screen used instead */}
                 </ScrollView>
               </View>
             </View>

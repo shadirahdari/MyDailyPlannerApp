@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import styles from './AddScreen.styles';
-import Categories, { DEFAULT_CATEGORIES } from '../components/Categories';
+import Categories from '../components/Categories';
+import DEFAULT_CATEGORIES from '../components/defaultCategories';
 import theme from '../components/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useRoute } from '@react-navigation/native';
