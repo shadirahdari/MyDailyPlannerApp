@@ -11,7 +11,6 @@ export default function Footer({
   iconColor = '#fff',
   onHomePress,
   onAddPress,
-  onSettingsPress,
   onSelectDate,
   selectedCategory,
   onSelectCategory,
@@ -28,10 +27,7 @@ export default function Footer({
           <MaterialIcons name="add-circle" size={56} color={theme.accent} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={onSettingsPress}>
-          <MaterialIcons name="settings" size={26} color={iconColor} />
-          <Text style={[styles.label, { color: iconColor }]}>Settings</Text>
-        </TouchableOpacity>
+        {/* Settings button removed per request */}
       </View>
     </SafeAreaView>
   );
